@@ -1,12 +1,13 @@
-import logo from './logo.svg';
-import './App.css';
+import Navbar from './components/Navbar';
+import Hero from './components/Hero'
 
 import SlotMachine from './components/SlotMachine';
 
 function App() {
   return (
     <>
-     <SlotMachine />
+      <Navbar />
+      <Hero />
     </>
   );
 }
