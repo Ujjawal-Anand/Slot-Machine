@@ -1,12 +1,11 @@
-import Navbar from './components/Navbar';
-import Hero from './components/Hero'
+import HomePage from './pages/HomePage'
+import { BrowserRouter } from 'react-router-dom'
 
 function App() {
   return (
-    <>
-      <Navbar />
-      <Hero />
-    </>
+    <BrowserRouter>
+      <HomePage />
+    </BrowserRouter>
   );
 }
 

@@ -1,26 +1,31 @@
-import React from 'react';
-import slotHero from '../images/slotHero.png';
+import React from "react";
+import { NavLink } from 'react-router-dom';
+
+import '../assets/styles/hero.css';
 
 const Hero = () => {
-    return (
-        <section className='hero'>
-            <div className='hero-center'>
-                <article className='hero-info'>
-                    <h1>
-                        Welcome to the slot game site.
-                    </h1>
-                    <p>
-                        Please register to play or login to continue
-                    </p>
-                    <button className='btn'>Register</button>
-                    
-                </article>
-                <article className='hero-images'>
-                    <img src={slotHero} className='header-img' alt='slot-machone-game' />
-                </article>
-            </div>
-        </section>
-    )
+  return (
+    <section id="home" className="hero">
+      <div className="container">
+        <div className="home-text">
+          <div className="section-text__subtitle">Landing Page</div>
+          <div className="section-text__title-big">
+            Welcome to the slot game site.
+          </div>
+          <div className="section-text__body">
+           Please register to play or login to continue.
+          </div>
+          <NavLink to="/register" className="btn register-btn">
+            Register
+          </NavLink>
+        </div>
+
+        <div className="section-image">
+          <img src="../images/slotHero.png" alt="app preview" />
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export default Hero;
