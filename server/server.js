@@ -44,16 +44,7 @@ const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './resolvers'))
 const apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req }) => {
-        // Get the user token from the headers.
-        const token = req.headers.authorization || '';
-     
-        // try to retrieve a user with the token
-        const user = getUser(token);
-     
-        // add the user to the context
-        return { user };
-      },
+    context: ({ req }) => ({ req })
 });
 
 // applyMiddleware method connects ApolloServer to a specific
@@ -65,11 +56,6 @@ const httpserver = http.createServer(app);
 apolloServer.installSubscriptionHandlers(httpserver);
 
 // rest endpoint
-app.get('/rest', authCheckMiddleware, function(req, res) {
-    res.join({
-        data: 'you hit rest endpoint, great!'
-    });
-});
 
 // port
 httpserver.listen(process.env.PORT, function() {

@@ -6,6 +6,7 @@ module.exports = gql`
   type Auth {
     id: ID
     email: String
+    token: String
   }
   type User {
     id: ID
@@ -19,7 +20,8 @@ module.exports = gql`
   }
 
   type Query {
-    getCurrentUser(token: string)
+    getCurrentUser(token: String): String!
+    verifyToken(token: String): Boolean!
   }
   
   type Mutation {

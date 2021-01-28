@@ -17,6 +17,19 @@ function generateToken (user) {
 }
 
 module.exports = {
+    Query: {
+        async getCurrentUser(parent, { token }) {
+            return 'Ujjawal'
+        },
+
+        async verifyToken(parent, { token }) {
+            try {
+                if (jwt.verify(token, process.env.SECRET_KEY)) return true;
+            } catch (err) {
+                return false;
+            }
+        }
+    },
     Mutation: {
         // login mutation
         async login (parent, { email, password }) {
@@ -43,17 +56,17 @@ module.exports = {
             }
 
             // sending a token back
-            // const token = generateToken(user);
+            const token = generateToken(user);
 
             return {
                 id: user._id,
                 email,
-                // token
+                token
             }
             
         },
         // register mutation
-        async register (parent,{ registerInput: { email, password, dob }}) {
+        async register (parent, {  email, password, dob }) {
             // req data validation
             const { valid, errors } = validateRegisterInput(email, password, dob);
 
@@ -81,12 +94,12 @@ module.exports = {
 
             const result = await newUser.save();
 
-            // const token = generateToken(result);
+            const token = generateToken(result);
 
             return {
                 id: result._id,
                 email,
-                // token
+                token
             }
         }
     }
