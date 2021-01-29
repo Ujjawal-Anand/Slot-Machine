@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import '../assets/styles/form.css'
+import { useMutation } from '@apollo/react-hooks';
 
 import Alert from '../components/Alert';
 import EmailField from '../components/EmailField';
 import DateField from '../components/DateField';
 import PasswordField from '../components/PasswordField';
+import { useHistory } from 'react-router-dom';
+import { USER_REGISTRATION } from '../graphql/mutations'
 
 const RegistrationPage = () => {
 
@@ -13,6 +16,9 @@ const RegistrationPage = () => {
     const [password, setPassword] = useState({value: '', valid: false});
     const [dob, setDob] = useState({value:'', valid: false});
     const [alert, setAlert] = useState({show: false, msg: '', type: ''});
+    const [loading, setLoading] = useState(false);
+
+    let history = useHistory();
     
 
     const fieldStateChanged = (setField) => 
@@ -24,8 +30,7 @@ const RegistrationPage = () => {
     const dateChanged = fieldStateChanged(setDob);
     const formValidated = email.valid && dob.valid && password.valid;  
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const showError = () => {
         if(!email.value) {
             showAlert(true, 'danger', 'Please enter email');
         } else if (!dob.value) {
@@ -35,7 +40,25 @@ const RegistrationPage = () => {
         } else if (!formValidated) {
             showAlert(true, 'danger', 'Correct the shown errors');
         }
-        console.log(email, password, dob);
+    }
+
+    // mutation
+    const [register] = useMutation(USER_REGISTRATION, {
+        update: ({data}) => {
+            console.log('Registration successful', data)
+        }
+
+    })
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if(!formValidated) {
+            showError();
+            return;
+        }
+        setLoading(true);
+        const values = { email: email.value, password: password.value, dob: dob.value};
+        register({ variables: {input: values }});
+        setLoading(false);
     }
 
     const showAlert = (show = false, type= '', msg = '') => {

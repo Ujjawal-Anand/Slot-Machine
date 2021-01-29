@@ -19,13 +19,25 @@ module.exports = gql`
     coupons: [String]
   }
 
+  # input type
+  input RegistrationInput {
+    email: String!
+    password: String!
+    dob: DateTime!
+  }
+
+  input LoginInput {
+    email: String!
+    password: String!
+  }
+
   type Query {
-    getCurrentUser(token: String): String!
-    verifyToken(token: String): Boolean!
+    getCurrentUser: String!
+    verifyToken: Auth!
   }
   
   type Mutation {
-    register(email: String!, password: String!, dob: DateTime!): Auth!
-    login(email: String!, password: String!): Auth!
+    register(input: RegistrationInput): Auth!
+    login(input: LoginInput): Auth!
   }
 `;

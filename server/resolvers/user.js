@@ -13,34 +13,40 @@ function generateToken (user) {
     return jwt.sign({
         _id: user._id,
         email: user.email
-    }, process.env.SECRET_KEY, { expiresIn: '1h'});
+    }, process.env.SECRET_KEY, { expiresIn: '48h'});
 }
 
 module.exports = {
     Query: {
-        async getCurrentUser(parent, { token }) {
+        async getCurrentUser(parent, args, { req }) {
             return 'Ujjawal'
         },
 
-        async verifyToken(parent, { token }) {
+        async verifyToken(parent, args, { req }) {
+            // get token from header
+            const token = req.header("authtoken");
+            if (!token) throw new Error('No auth token found');
             try {
-                if (jwt.verify(token, process.env.SECRET_KEY)) return true;
+                result = jwt.verify(token, process.env.SECRET_KEY);
+                authData = { email: result.email, token, id: result._id }
+                return authData;
             } catch (err) {
-                return false;
+                throw err
             }
         }
     },
     Mutation: {
         // login mutation
-        async login (parent, { email, password }) {
-            const { valid, errors } = validateLoginInput(username, password);
+        async login (parent, args, { req }) {
+            const { email, password, dob} = args.input;
+            const { valid, errors } = validateLoginInput(email, password);
 
             if (!valid) {
                 throw new UserInputError('Errors' , { errors });
             }
             
             // getting a user from mongodb
-            const user = await User.findOne({ username });
+            const user = await User.findOne({ email });
 
             if (!user) {
                 errors.general = "User not found";
@@ -58,16 +64,19 @@ module.exports = {
             // sending a token back
             const token = generateToken(user);
 
-            return {
+            const authData = {
                 id: user._id,
                 email,
                 token
             }
+
+            return authData;
             
         },
         // register mutation
-        async register (parent, {  email, password, dob }) {
+        async register (parent, args, { req }) {
             // req data validation
+            const {  email, password, dob } = args.input;
             const { valid, errors } = validateRegisterInput(email, password, dob);
 
             if (!valid) {
@@ -84,11 +93,11 @@ module.exports = {
                 })
             }
 
-            password = await bcrypt.hash(password, 12);
+            const hashed_password = await bcrypt.hash(password, 12);
           
             const newUser = new User ({
                 email,
-                password,
+                password: hashed_password,
                 dob
             });
 
@@ -96,11 +105,12 @@ module.exports = {
 
             const token = generateToken(result);
 
-            return {
+            const authData = {
                 id: result._id,
                 email,
                 token
-            }
+            };
+            return authData; 
         }
     }
 }
