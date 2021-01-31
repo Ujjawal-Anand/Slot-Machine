@@ -18,3 +18,12 @@ export const USER_LOGIN = gql`
     }
     ${AUTH_INFO}
 `
+
+export const UPDATE_POINTS = gql`
+    mutation updatePoints($points: Int!) {
+        updatePoints(points: $points) {
+            ...authInfo
+        }
+    }
+    ${AUTH_INFO}
+`

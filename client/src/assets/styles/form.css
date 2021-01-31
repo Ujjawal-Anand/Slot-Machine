@@ -1,3 +1,4 @@
+
 .main-container {
     position: relative;
     width: 400px;
@@ -14,26 +15,7 @@
     text-align: center;
   }
 
-  .alert {
-    margin-bottom: 1rem;
-    display: grid;
-    align-items: center;
-    text-align: center;
-    font-size: 1rem;
-    border-radius: 0.25rem;
-    letter-spacing: var(--spacing);
-    text-transform: capitalize;
-}
-
-.alert-danger {
-    color: var(--clr-red-dark);
-    background: #f8d7da;
-}
-
-.alert-success {
-    color: var(--clr-green-dark);
-    background: #d4edda;
-}
+ 
   
   .control-label {
     font-size: 0.8rem;

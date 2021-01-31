@@ -1,7 +1,7 @@
 import React, { useReducer, createContext, useEffect } from 'react';
 import { useQuery } from '@apollo/react-hooks';
 
-import { TOKEN_USER_QUERY } from '../graphql/queries';
+import { GET_CURRENT_USER } from '../graphql/queries';
 
 
 // reducer
@@ -26,15 +26,19 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, initialState);
         
-        const { data, error } = useQuery(TOKEN_USER_QUERY)
+        const { data, error } = useQuery(GET_CURRENT_USER)
         console.log(data);
 
         useEffect(() => {
             if(data) {
-                const user = data.verifyToken;
+                const user = data.getCurrentUser;
                 dispatch({
                     type: 'LOGGED_IN_USER',
-                    payload: { email: user.email, token: user.token }
+                    payload: { email: user.email, 
+                               token: user.token, 
+                               attempts: user.attempts, 
+                               points: user.points,
+                               coupons: user.coupons  }
                 });
             } else {
                 dispatch({

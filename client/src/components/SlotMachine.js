@@ -1,89 +1,163 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import Rodal from 'rodal';
+import 'rodal/lib/rodal.css';
+import { useMutation } from '@apollo/react-hooks';
+
 
 import Reel from './Reel';
-import '../styles/slot-style.css';
+import {AuthContext} from '../context/authContext';
+import { UPDATE_POINTS } from '../graphql/mutations';
+
+import '../assets/styles/slot-style.css';
 
 const SlotMachine = () => {
-    const [reels, setReels] = useState([
+    const { state } = useContext(AuthContext);
+    console.log(state)
+
+    const [reels] = useState([
         Array.from({length: 9}, (_, i) => i+1),
         Array.from({length: 9}, (_, i) => i+1),
         Array.from({length: 9}, (_, i) => i+1)
     ]),
 
-    [coins, changeCoins] = useState(20),
+    [attempts, setAttempts] = useState(state.user.attempts),
     [spinError, setSpinError] = useState(false),
-    [addedCoins, setAddedCoins] = useState(0),
-    [coinsFor, setCoinsFor] = useState({}),
+    [points, setPoints] = useState(state.user.points),
     [currentReel, setCurrentReel] = useState([{ index: 0}, {index: 0}, {index: 0}]),
-    [spinner, setSpinner] = useState(true);
+    [spinner, setSpinner] = useState(true),
+    [loading, setLoading] = useState(false),
+    [visible, setVisible] = useState(false);
 
+    const [updatePoints] = useMutation(UPDATE_POINTS, {
+        onError: (err) => {
+            console.log(err);
+        }
+    });
+
+
+
+
+    // this will show spinner animation in the beginning
     useEffect(() => {
-        setTimeout(() => {
+        setLoading(true);
+        const interval = setTimeout(() => {
             spin(false);
             setSpinner(false)
-        }, 1000)
+        }, 1000);
+        setLoading(false);
+        return () => clearInterval(interval);
     }, [reels])
 
-    const spin = updateCoins => {
+    
+
+    const spin = (updatePrize) => {
         const newCurrentReel = reels.map(reel => {
-            const randomNum =  getRandomInt(0, reel.length)
+            const randomNum =  getRandomInt(6, reel.length)
             return {
                 index: randomNum,
                 name: reel[randomNum]
             }
         });
+        console.log(newCurrentReel);
 
-        if (updateCoins) calculateCoins(newCurrentReel)
+        if (updatePrize) {
+            calculatePoints(newCurrentReel)
+            updatePoints({ variables: { points: points } });
+        }
         
         setCurrentReel(newCurrentReel)
     }
 
     const handleSpin = () => {
-        const newCoins = coins-1;
-        setSpinError(newCoins === 0 ? true : false);
+        setLoading(true);
+        const newAttempts = attempts-1;
+        setSpinError(newAttempts === 0 ? true : false);
         setSpinner(true)
 
-        setTimeout(() => {
+        const interval = setTimeout(() => {
             spin(true);
             setSpinner(false);
-        }, 1000)
+        }, 1000);
+        return () => clearInterval(interval);
     }
 
-    const calculateCoins = currentReel => {
-        const reelsCount = currentReel.map(dataItem => dataItem.name)
-                                        .filter((name, index, array) => array.indexOf(name) === index)
+    const calculatePoints = currentReel => {
+        setLoading(false);  
+        const reelsCount = currentReel.map(dataItem => dataItem.name);
+        setAttempts(attempts-1);
+        
+        if(new Set(reelsCount).size === 1){
+         setPoints(points+500); 
+         return;
+        } // numbers are equal;
+
+        // calculate numbers are consucative or odd consucative or even consucative
+        // in each case => 200 points
+        const diffNum1 = reelsCount[2] - reelsCount[1];
+        const diffNum2 = reelsCount[1] - reelsCount[0];
+        if(diffNum1 === diffNum2 && (diffNum1 === 1 || diffNum1 === 2)) {
+            setPoints(points+200);
+            return;
+        }
+
+        // check for special combination => 1 5 9 => 50 points
+        if(reelsCount[0] === 1 && reelsCount[1] === 5 && reelsCount[2] === 9) {
+            setPoints(points+50);
+            return;
+        }
+
+        setPoints(points+5);
     }
 
     const getRandomInt = (min, max) => {
         min = Math.ceil(min);
-        max = Math.floor(max);
+        max = Math.floor(max-1);
 
-        return Math.floor(Math.random() * max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     return (
-        <div className="app">
-            <h3>Slot Machine - click Spin to play</h3>
-            <p>1 spin = 1 coin</p>
-            <p>Match two or three similar items to win coins. (exception: 2 lemons = 0 coins)</p>
+            <div className="slot-container">
+                <div className="account-info">
+                    {points === 0 ? 
+                    <p>You account has 0 prize points</p>
+                        : <p>Total Points : {points}</p>}
+                    {points >= 1000 && <button className='btn'>Redeem</button>}
+                </div>
+                <div className='coupons'>
+                    <button className='btn' onClick={() => setVisible(true)}>My coupons</button>
+                </div>
             <div className="slot">
                 <h2 className="slot__heading">Slot Machine</h2>
-                <div className="slot__win-message">
-                { addedCoins > 0 ? (
-                        <span className="success">You Won {addedCoins} coins for {coinsFor.count} {coinsFor.name}s!!</span> 
-                    ): null
-                }
-                </div>                
-                <p>Coins: <strong>{coins}</strong></p>
+                              
                 <div className="slot__slot-container">
                     {reels.map((reelItem, index) => 
                         <Reel reelItem={reelItem} key={index} selectedReel={currentReel[index]} spinner={spinner} />
                     )}                   
                 </div>
-                { spinError &&  <span className="error">Game over. Add more coins to play</span>}
-                <button className="btn btn-primary slot__spin-button" onClick={handleSpin} disabled={(coins === 0)} >Spin</button>
-            </div>            
-        </div>
+
+                { spinError &&  <span className="error">Game over. Add more attempts to play</span>}
+                <button className="slot__spin-button" onClick={handleSpin} disabled={loading} >Spin</button>
+                <div className='attempts'>You have {attempts} attempts remaining</div>
+            </div>
+
+            <Rodal
+                visible={visible}
+                onClose={() => setVisible(false)}
+                animation='zoom'
+                closeOnEsc
+            >
+                <div className="header">Rodal</div>
+                <div className="body">A React modal with animations.</div>
+                <button className="rodal-confirm-btn" onClick={() => setVisible(false)}>
+                    ok
+                </button>
+                <button className="rodal-cancel-btn" onClick={() => setVisible(false)}>
+                    close
+                </button>
+            </Rodal>
+        </div>            
+        
     )
 }
 

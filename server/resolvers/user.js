@@ -21,20 +21,22 @@ const generateToken = (user) => {
 module.exports = {
     Query: {
         async getCurrentUser(parent, args, { req }) {
-            return 'Ujjawal'
+            const { id, token } = await authCheck(req);
+            const user = await User.findById({_id: id}).exec();
+
+            return {
+                email: user.email,
+                token,
+                id,
+                attempts: user.attempts,
+                points: user.points,
+                coupons: user.coupons
+            }
+
         },
 
         async verifyToken(parent, args, { req }) {
-            // get token from header
-            const token = req.header("authtoken");
-            if (!token) throw new Error('No auth token found');
-            try {
-                result = jwt.verify(token, process.env.SECRET_KEY);
-                authData = { email: result.email, token, id: result._id }
-                return authData;
-            } catch (err) {
-                throw err
-            }
+            return await authCheck(req);
         }
     },
     Mutation: {
@@ -123,7 +125,29 @@ module.exports = {
                 points: user.points,
                 attempts: user.attempts,
                 coupons: user.coupons
-            }; 
+            };
+        },
+
+        async updatePoints(parent, args, { req }) {
+            const { email, token } = await authCheck(req);
+            // update the points and decrease attempt by 1
+            const user = await User.findOneAndUpdate(
+                {email},
+                { points: args.points, $inc: {
+                    attempts: -1
+                  } 
+                },
+                {new: true}
+            ).exec();
+            
+            return {
+                id: user._id,
+                email,
+                token,
+                points: user.points,
+                attempts: user.attempts,
+                coupons: user.coupons
+            };
         }
     }
 }

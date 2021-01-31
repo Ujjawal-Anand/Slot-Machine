@@ -22,6 +22,12 @@ module.exports = gql`
     coupons: [String]
   }
 
+  type VerifyToken {
+    id: ID!
+    email: String!
+    token: String!
+  }
+
   # input type
   input RegistrationInput {
     email: String!
@@ -34,13 +40,15 @@ module.exports = gql`
     password: String!
   }
 
+
   type Query {
-    getCurrentUser: String!
-    verifyToken: Auth
+    getCurrentUser: Auth!
+    verifyToken: VerifyToken!
   }
   
   type Mutation {
     register(input: RegistrationInput): Auth
     login(input: LoginInput): Auth
+    updatePoints(points: Int!): Auth!
   }
 `;

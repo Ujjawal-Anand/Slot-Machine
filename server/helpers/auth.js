@@ -2,16 +2,14 @@ const jwt = require("jsonwebtoken");// middleware to validate token
 
 exports.authCheck = async (req) => {
     const token = req.header("authtoken");
-    if (!token) throw new Error('No token found') 
-  
+    if (!token) throw new Error('No auth token found');
     try {
-        const currentUser = await jwt.verify(token, process.env.TOKEN_SECRET);
-        console.log('CURRENT USER', currentUser);
-        return currentUser;
-    } catch (error) {
-        console.log('AUTH CHECK ERROR', error);
-        throw new Error('Invalid or expired token');
-    }
+        result = await jwt.verify(token, process.env.SECRET_KEY);
+        authData = { email: result.email, token, id: result._id }
+        return authData;
+        } catch (err) {
+            throw err
+        }
 };
 
 exports.authCheckMiddleware = (req, res, next) => {

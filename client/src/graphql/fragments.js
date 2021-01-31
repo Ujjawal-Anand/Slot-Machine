@@ -1,5 +1,6 @@
 import { gql } from 'apollo-boost'
 
+
 export const AUTH_INFO = gql`
     fragment authInfo on Auth {
         id
@@ -10,3 +11,11 @@ export const AUTH_INFO = gql`
         coupons
     }
 `;
+
+export const VERIFY_TOKEN = gql`
+    fragment verifyToken on VerifyToken {
+        id
+        email
+        token
+    }
+`

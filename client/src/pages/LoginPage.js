@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import '../assets/styles/authform.css'
+// import '../assets/styles/form.css'
 import { toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import { useMutation } from '@apollo/react-hooks';
