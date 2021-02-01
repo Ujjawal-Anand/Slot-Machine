@@ -88,7 +88,7 @@ const RegistrationPage = () => {
     
 
     return (
-        <div className="form-container d-table-cell position-relative align-middle">
+        <div className="form-container">
             <form action="/" method="POST" noValidate>
 
                 <div className="d-flex flex-row justify-content-between align-items-center px-3 mb-5">

@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { UserInputError } = require('apollo-server');
 const { authCheck } = require('../helpers/auth')
+const { MIN_POINTS_TO_REDEEM, ATTEMPT_ON_REDEEM} = require('../constants')
 require('dotenv').config();
 
 
@@ -148,6 +149,56 @@ module.exports = {
                 attempts: user.attempts,
                 coupons: user.coupons
             };
+        },
+
+        async addCoupon(parent, args, { req }) {
+            const { id} = await authCheck(req);
+            // add the coupon and decrease points by 1000
+            
+            let user = await User.findById(id);
+
+            if(user.points <= MIN_POINTS_TO_REDEEM) {
+                throw new Error("Insufficient Points")
+            }
+            user = await User.findOneAndUpdate(
+                {email},
+                { "$push": {
+                    coupons: args.coupon
+                  },
+                  $inc: {
+                    points: -MIN_POINTS_TO_REDEEM
+                  }  
+                },
+                {new: true}
+            ).exec();
+            
+            if (user) {
+                return args.coupon;
+            }
+            throw new Error('Not able to add coupon')
+        },
+
+        
+        async redeemCoupon(parent, args, { req }) {
+            /*This will just delete the coupon from list*/ 
+            const { email, token } = await authCheck(req);
+            //  remove the coupon from list and add attempts
+            const user = await User.findOneAndUpdate(
+                {email, coupons: {$all:[args.coupon]}},
+                { "$pull": {
+                    coupons: args.coupon
+                  } ,
+                  $inc: {
+                    attempts: ATTEMPT_ON_REDEEM
+                  } 
+                }
+            ).exec();
+            
+            if(user) {
+                return args.coupon
+            }
+            
+            throw new Error('Invalid Coupon')
         }
     }
 }

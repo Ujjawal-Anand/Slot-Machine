@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import Rodal from 'rodal';
 import 'rodal/lib/rodal.css';
+import { toast } from 'react-toastify';
 import { useMutation } from '@apollo/react-hooks';
 
 
 import Reel from './Reel';
 import {AuthContext} from '../context/authContext';
-import { UPDATE_POINTS } from '../graphql/mutations';
+import { UPDATE_POINTS, ADD_COUPON, REDEEM_COUPON } from '../graphql/mutations';
 
 import '../assets/styles/slot-style.css';
 
@@ -30,7 +31,17 @@ const SlotMachine = () => {
 
     const [updatePoints] = useMutation(UPDATE_POINTS, {
         onError: (err) => {
-            console.log(err);
+            toast.error(`Failed to save data $(err)`)
+        }
+    });
+
+    const [addCoupon] = useMutation(ADD_COUPON, {
+        onError: (err) => {
+            toast.error(`Couldn't add coupon $(err)`)
+        },
+        onCompleted: ({coupon}) => {
+            toast.success(`Coupon added successfully`);
+
         }
     });
 
@@ -66,6 +77,10 @@ const SlotMachine = () => {
         }
         
         setCurrentReel(newCurrentReel)
+    }
+
+    const generateString = (length=5) => {
+        return Math.random().toString(36).substring(length);
     }
 
     const handleSpin = () => {
@@ -119,6 +134,7 @@ const SlotMachine = () => {
     return (
             <div className="slot-container">
                 <div className="account-info">
+                    <p> {state.user.email.split('@')[0]} </p>
                     {points === 0 ? 
                     <p>You account has 0 prize points</p>
                         : <p>Total Points : {points}</p>}

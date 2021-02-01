@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-// import '../assets/styles/form.css'
+import '../assets/styles/form.css'
 import { toast } from 'react-toastify';
 import { useHistory } from 'react-router-dom';
 import { useMutation } from '@apollo/react-hooks';
@@ -17,7 +17,7 @@ const LoginPage = () => {
     const [formValidated, setFromValidated] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const { dispatch } = useContext(AuthContext);
+    const { state, dispatch } = useContext(AuthContext);
 
 
     const history = useHistory();
@@ -50,14 +50,14 @@ const LoginPage = () => {
             toast.error(`Failed to login ${err}`)
         },
         onCompleted: ({login}) => {
-            const {email,  token, id} = login;
+            const {email,  token, id, attempts, coupons, points} = login;
             localStorage.setItem(AUTH_TOKEN, token);
             localStorage.setItem(USER_ID, id);
             dispatch({
                 type: 'LOGGED_IN_USER',
-                payload: { email, token }
+                payload: { ...login }
             });
-            toast.success('Welcome!')
+            toast.success(`Welcome! ${(login.email).split('@')[0]}`)
             history.push('/slotmachine')
         }
 
@@ -77,7 +77,7 @@ const LoginPage = () => {
 
 
     return (
-        <div className="form-container d-table-cell position-relative align-middle">
+        <div className="form-container">
             <form action="/" method="POST" noValidate>
 
                 <div className="d-flex flex-row justify-content-between align-items-center px-3 mb-5">

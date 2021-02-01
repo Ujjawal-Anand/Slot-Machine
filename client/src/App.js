@@ -15,6 +15,7 @@ import RegistrationPage from './pages/RegistrationPage';
 import LoginPage from './pages/LoginPage';
 import SlotMachine from './components/SlotMachine'
 import PrivateRoute from './components/PrivateRoute';
+import PublicRoute from './components/PublicRoute';
 
 import { AUTH_TOKEN } from './constants';
 
@@ -53,8 +54,8 @@ function App() {
       <ToastContainer />
       <Switch>
         <Route exact path="/" component={HomePage} />
-        <Route path="/register" component={RegistrationPage} />
-        <Route path="/login" component={LoginPage} />
+        <PublicRoute path="/register" component={RegistrationPage} />
+        <PublicRoute path="/login" component={LoginPage} />
         <PrivateRoute path="/slotmachine" component={SlotMachine} />
       </Switch>
       </AuthProvider>

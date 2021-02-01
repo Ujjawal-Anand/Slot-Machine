@@ -1,11 +1,10 @@
 
-.main-container {
-    position: relative;
+.form-container {
     width: 400px;
-    top: 100px;
-    /* bottom: 0;
-    left: 0;
-    right: 0; */
+    height: 600px;
+    margin: auto;
+    margin-top: 100px;
+    
   }
   
   legend.form-label {

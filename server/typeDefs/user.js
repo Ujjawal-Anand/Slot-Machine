@@ -50,5 +50,7 @@ module.exports = gql`
     register(input: RegistrationInput): Auth
     login(input: LoginInput): Auth
     updatePoints(points: Int!): Auth!
+    addCoupon(coupon: String!): String!
+    redeemCoupon(coupon: String!): String!
   }
 `;
