@@ -19,11 +19,6 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: true
         },
-        // is user logged in?
-        loggedIn: {
-            type: Boolean,
-            default: false
-        },
         dob: {
             type: Date,
             required: [true, 'Date of Birth required']

@@ -35,7 +35,7 @@ export const ADD_COUPON = gql`
 `
 
 export const REDEEM_COUPON = gql`
-    mutation redeemCoupon($coupon: String) {
+    mutation redeemCoupon($coupon: String!) {
         redeemCoupon(coupon: $coupon)
     }
 `

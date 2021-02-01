@@ -61,7 +61,7 @@ const RegistrationPage = () => {
             localStorage.setItem(USER_ID, id);
             dispatch({
                 type: 'LOGGED_IN_USER',
-                payload: { email, token}
+                payload: { ...register}
             });
             toast.success('Registered Successfully')
             history.push('/slotmachine')

@@ -129,17 +129,20 @@ module.exports = {
             };
         },
 
-        async updatePoints(parent, args, { req }) {
+        async updatePoints(parent, {points}, { req }) {
             const { email, token } = await authCheck(req);
-            // update the points and decrease attempt by 1
+            // update the points by adding and decrease attempt by 1
             const user = await User.findOneAndUpdate(
                 {email},
-                { points: args.points, $inc: {
-                    attempts: -1
-                  } 
+                { $inc: {
+                    points: points, attempts: -1}
                 },
                 {new: true}
             ).exec();
+
+            if(!user) {
+                throw new Error('Wrong Credentials');
+            }
             
             return {
                 id: user._id,
@@ -152,7 +155,7 @@ module.exports = {
         },
 
         async addCoupon(parent, args, { req }) {
-            const { id} = await authCheck(req);
+            const { id, email} = await authCheck(req);
             // add the coupon and decrease points by 1000
             
             let user = await User.findById(id);

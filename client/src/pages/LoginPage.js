@@ -50,7 +50,7 @@ const LoginPage = () => {
             toast.error(`Failed to login ${err}`)
         },
         onCompleted: ({login}) => {
-            const {email,  token, id, attempts, coupons, points} = login;
+            const {email,  token, id} = login;
             localStorage.setItem(AUTH_TOKEN, token);
             localStorage.setItem(USER_ID, id);
             dispatch({
